@@ -77,4 +77,34 @@ if df is not None:
         with s1: 
             callout = f'<div class="integrity-callout">↩️ Conference with flagged students.</div>' if integrity_flag_rate > 0 else ""
             st.markdown(f'<div class="summary-box"><div class="summary-label">Integrity Flag Rate</div><div class="summary-val" style="color:#b45309">{integrity_flag_rate:.1f}%</div>{callout}</div>', unsafe_allow_html=True)
-        with s2: st.markdown(f'<div class="summary-box"><div class="summary-label">Intervention Rate</div><div class="summary-val" style="color:#b91c1
+        with s2: st.markdown(f'<div class="summary-box"><div class="summary-label">Intervention Rate</div><div class="summary-val" style="color:#b91c1c">{intervention_rate:.1f}%</div></div>', unsafe_allow_html=True)
+        with s3: st.markdown(f'''<div class="summary-box"><div class="summary-label">Mastery Rate {"✅" if trend_pass else "❌"}</div><div class="summary-val" style="color:#15803d">{actual_mastery_rate:.1f}%</div><div class="goal-text">Goal: {goal_mastery_pct}%</div></div>''', unsafe_allow_html=True)
+
+        strategy_text = "🔍 **Targeted Small Groups.** Pull Tier 2 students for quick feedback while others maintain momentum."
+        if trend_pass: strategy_text = "🎉 **Goal Achieved.** Students are ready for extensions. Consider assigning the next skill or challenge problems."
+        elif intervention_rate > 30: strategy_text = "⚠️ **High Intervention Required.** Pause independent work for a targeted whole-class re-teach."
+        st.markdown(f'<div class="strategy-container"><div class="strategy-text">{strategy_text}</div></div>', unsafe_allow_html=True)
+
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown('<div class="unified-card"><div class="card-header">🚩 Integrity Check</div>', unsafe_allow_html=True)
+            for _, r in speed_gamers.iterrows():
+                st.markdown(f'<div class="student-row"><span class="color-integrity">{r["First"]} {r["Last"]}</span><span class="color-integrity">{r[score_col]}%</span></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        with c2:
+            st.markdown(f'<div class="unified-card"><div class="card-header">🛠️ Tier 2 (Below {mastery_threshold}%)</div>', unsafe_allow_html=True)
+            for _, r in struggling.iterrows():
+                st.markdown(f'<div class="student-row"><span>{r["First"]} {r["Last"]}</span><span class="color-tier2">{r[score_col]}%</span></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+        with c3:
+            st.markdown(f'<div class="unified-card"><div class="card-header">✅ Mastery ({mastery_threshold}%+)</div>', unsafe_allow_html=True)
+            for _, r in mastery_group.iterrows():
+                st.markdown(f'<div class="student-row"><span>{r["First"]} {r["Last"]}</span><span class="color-mastery">{r[score_col]}%</span></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("---")
+        st.subheader("📋 Full Roster Performance Explorer")
+        st.dataframe(df, use_container_width=True, hide_index=True, column_config={ppm_col: st.column_config.NumberColumn(format="%.2f")})
+
+    except Exception as e:
+        st.error(f"Analysis Error: {e}. Please ensure your CSV has the correct headers.")
