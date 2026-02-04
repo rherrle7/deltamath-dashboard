@@ -74,22 +74,19 @@ with st.sidebar:
     st.markdown("---")
     st.caption("AI Integration Specialist Prototype v5.9")
 
+# Check if a file was uploaded, otherwise use the sample from your repo
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
+else:
+    # This automatically loads the sample file you committed to GitHub
     try:
-        score_col = [c for c in df.columns if any(w in c for w in ['Grade', 'Score', 'Percent'])][0]
-        ppm_col = "Problems Per Minute"
-        df[ppm_col] = (df['Problems_Solved'] / df['Time_Spent_Minutes'].replace(0, 1)).astype(float).round(2)
-        
-        total_students = len(df)
-        speed_gamers = df[df[ppm_col] > 3.5]
-        struggling = df[(df[score_col] < mastery_threshold) & (df[ppm_col] <= 3.5)]
-        mastery_group = df[(df[score_col] >= mastery_threshold) & (df[ppm_col] <= 3.5)]
-        
-        actual_mastery_rate = (len(mastery_group)/total_students)*100
-        intervention_rate = (len(struggling)/total_students)*100
-        integrity_flag_rate = (len(speed_gamers)/total_students)*100
-        trend_pass = actual_mastery_rate >= goal_mastery_pct
+        df = pd.read_csv("sample_data.csv")
+        st.info("💡 Currently viewing sample student data. Upload your own CSV in the sidebar to switch!")
+    except:
+        st.warning("Please upload a DeltaMath CSV file to begin.")
+        st.stop()
+
+# ... (the rest of your logic follows)
 
         # 1. Header
         st.markdown(f'<div class="mastery-container"><div class="mastery-box"><div class="hero-label">AVG MASTERY</div><div class="hero-value">{df[score_col].mean():.1f}%</div></div></div>', unsafe_allow_html=True)
